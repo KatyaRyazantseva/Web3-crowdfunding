@@ -1,6 +1,5 @@
 import Head from "next/head";
 import "/resources/styles/globals.css";
-import { Toaster, toast } from "react-hot-toast";
 import MainLayout from "../components/Layout";
 import { createContext, useEffect, useState } from "react";
 import { web3, provider, saveWalletInfo } from "../utils/web3";
@@ -21,8 +20,6 @@ const MyApp = ({ Component, pageProps }) => {
    */
   const fetch = async () => {
     const network = await web3.eth.getChainId();
-    console.log('network ', network);
-    console.log('userInfo ', userInfo);
     setNetwork(network);
 
       if (network !== 80001) { // mumbai
@@ -55,13 +52,13 @@ const MyApp = ({ Component, pageProps }) => {
       </Head>
       <Layout>
          <ErrorBoundary FallbackComponent={<p>Something went wrong!</p>}>
-      {network === 80001 && userInfo && userInfo.account ? (
-            <Component {...pageProps} />
-           ) : (
-            <>
-              <LogIn />
-            </>
-          )}
+            {network === 80001 && userInfo && userInfo.account ? (
+              <Component {...pageProps} />
+            ) : (
+              <>
+                <LogIn />
+              </>
+            )}
           </ErrorBoundary>
       </Layout> 
     </Web3Context.Provider>

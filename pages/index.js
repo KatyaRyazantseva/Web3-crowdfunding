@@ -7,53 +7,40 @@ import getCampaignInstance from "../web3/utils/campaign";
 import getFactoryInstance from "../web3/utils/factory";
 import { Web3Context } from "./_app";
 import WalletAlert from "../components/WalletAlert";
-import { timestampToDate } from "../utils/utils.js";
+import { timestampToDate, dateToTimestamp, getProgress } from "../utils/utils.js";
 import { web3 } from "../utils/web3";
 
+
 const CampaignIndex = (props) => {
-  const { campaigns = [], campaignsSummary = [] } = props;
+  const { campaigns, campaignsSummary } = props;
   const router = useRouter();
   const [userInfo] = useContext(Web3Context);
+      
   /**
    * Helper method to remap campaigns and render them in a CardList component
    * @returns {JSX.Element}
    */
+
   const renderCampaigns = () => {
-    const items = campaigns.map((address, i) => {
-      if (campaignsSummary.length > 0) {
-      let campaignProgess = 1;
-      let progress = 0;
-      try {
-        if (campaignsSummary[i][4] !== 0) {
-          progress = Math.round(campaignsSummary[i][0] / campaignsSummary[i][4] * 100);
-          campaignProgess = (progress === 0) ? 1 : ((progress > 100) ? 100 : progress);
-        }
-      } catch(e) {
-        console.log(e.message);
-      }
-        return {
-        title: campaignsSummary[i][2],
-        subtitle: address,
-        description: campaignsSummary[i][3], 
-        campaignProgess: campaignProgess,
-        raisedFunding: web3.utils.fromWei(campaignsSummary[i][6].toString(), "ether") + " MATIC (" + progress.toString() + "%)",
-        deadline: timestampToDate(campaignsSummary[i][7]).toLocaleDateString(),
-        campaignStatus: campaignsSummary[i][9],
-        campaignGoal: web3.utils.fromWei(campaignsSummary[i][4].toString(), "ether") + " MATIC",       
-      };
-    } else {
+    let items = campaignsSummary.map((campaignSummary) => {
+      const campaignProgess = getProgress(campaignSummary.props[6], campaignSummary.props[4]);
+      const campaignProgessBar = (campaignProgess == 0) ? 1 : campaignProgess;
+
       return {
-        title: "data is loading...",
-        subtitle: address,
-        description: "", 
-        campaignProgess: "",
-        raisedFunding: "",
-        deadline: "",
-        campaignStatus: "",
-        campaignGoal: ""        
+        address: campaignSummary.address,
+        props: {
+          title: campaignSummary.props[2],
+          subtitle: campaignSummary.address,
+          description: campaignSummary.props[3], 
+          campaignProgess: campaignProgessBar,
+          raisedFunding: web3.utils.fromWei(campaignSummary.props[6].toString(), "ether") + " MATIC (" + campaignProgess.toString() + "%)",
+          deadline: timestampToDate(campaignSummary.props[7]).toLocaleDateString(),
+          campaignStatus: campaignSummary.props[9],
+          campaignGoal: web3.utils.fromWei(campaignSummary.props[4].toString(), "ether") + " MATIC",       
+        } 
       };
-    }
     });
+
     return <CardList items={items} showButton showProgress showStat/>;
   };
 
@@ -132,25 +119,39 @@ const CampaignIndex = (props) => {
  */
 CampaignIndex.getInitialProps = async () => {
   let campaigns = [];
-  let campaignsSummary = [];
-
+  let campaignsSummary = new Map();
+  const currentDateTimestamp = dateToTimestamp(new Date());
+  const emptySummary = [0, '', 'loading...', '', 0, 0, 0, currentDateTimestamp, 0, ""];
   const contractInstance = await getFactoryInstance();
+
   try {
   campaigns = await contractInstance.methods.getDeployedCampaigns().call();
   } catch (e) {
     campaigns = [];
   };
-  
+
   try {
     campaignsSummary = await Promise.all(
     campaigns.map(async (address) => {
       const campaign = await getCampaignInstance(address);
-      return await campaign.methods.getCampaignSummary().call();
+      try {
+       const campaignSummary = await campaign.methods.getCampaignSummary().call();
+       return {
+          address: address,
+          props: campaignSummary
+        };
+      } catch (e) {
+       return {
+          address: address,
+          props: emptySummary
+       };
+      }
       })
     );
   } catch (e) {
     console.log(e.message);
   };
+
   return {
     campaigns,
     campaignsSummary

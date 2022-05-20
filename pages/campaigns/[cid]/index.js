@@ -85,13 +85,15 @@ const CampaignDetails = (props) => {
       await campaign.methods.withdraw().send({
         from: accounts[0],
       });
+      toast.dismiss(loadingToast);
+      setIsSubmitting(false);
       setWithdrawModalOpen(true);
-      } catch (e) {
+    } catch (e) {
+      toast.dismiss(loadingToast);
+      setIsSubmitting(false);
       setErrorMessage(shortErrorMessage(e.message));
       setErrorModalOpen(true);
     }
-    toast.dismiss(loadingToast);
-    setIsSubmitting(false);
   };
 
   const handleOnRefund = async (e) => {
@@ -106,13 +108,15 @@ const CampaignDetails = (props) => {
       await campaign.methods.refund().send({
         from: accounts[0],
       });
+      toast.dismiss(loadingToast);
+      setIsSubmitting(false);
       setRefundModalOpen(true);
-      } catch (e) {
+     } catch (e) {
+      toast.dismiss(loadingToast);
+      setIsSubmitting(false);
       setErrorMessage(shortErrorMessage(e.message));
       setErrorModalOpen(true);
     }
-    toast.dismiss(loadingToast);
-    setIsSubmitting(false);
   };
   /**
    * Renders contract details in cards in a grid layout
@@ -127,35 +131,53 @@ const CampaignDetails = (props) => {
     };
     const items = [
       {
-        title: "Campaign Goal",
-        subtitle: web3.utils.fromWei(campaignGoal.toString(), "ether"),
-        description: "This is the final goal of the campaign (in MATIC)",
+        address: 0,
+        props: {
+          title: "Campaign Goal",
+          subtitle: web3.utils.fromWei(campaignGoal.toString(), "ether"),
+          description: "This is the final goal of the campaign (in MATIC)",
+        }
       },
       {
-        title: "Fundraised amount",
-        subtitle: web3.utils.fromWei(raisedFunding.toString(), "ether"), 
-        description: "Total amount of MATIC that has been contributed so far",
+        address: 1,
+        props: {
+          title: "Fundraised amount",
+          subtitle: web3.utils.fromWei(raisedFunding.toString(), "ether"), 
+          description: "Total amount of MATIC that has been contributed so far",
+        }
       },
       {
-        title: "Campaign Deadline",
-         subtitle: timestampToDate(deadline).toLocaleDateString(),
-        description: "Date when campaign expires on (maximum 60 days)",
+        address: 2,
+        props: {
+          title: "Campaign Deadline",
+          subtitle: timestampToDate(deadline).toLocaleDateString(),
+          description: "Date when campaign expires on (maximum 60 days)",
+        }
       },
       {
-        title: "Contract balance",
-        subtitle: web3.utils.fromWei(contractBalance.toString(), "ether"),
-        description: "Current balance of the campaign contract (in MATIC)",
+        address: 3,
+        props: {
+          title: "Contract balance",
+          subtitle: web3.utils.fromWei(contractBalance.toString(), "ether"),
+          description: "Current balance of the campaign contract (in MATIC)",
+        }
       },
       
       {
-        title: "Number of contributors",
-        subtitle: contributorsCount,
-        description: "Number of people contributed to this project",
+        address: 4,
+        props: {
+          title: "Number of contributors",
+          subtitle: contributorsCount,
+          description: "Number of people contributed to this project",
+        }
       },
       {
-        title: "Campaign status",
-        subtitle: campaignStatusSubtitle,
-        description: "Current status of the campaign", 
+        address: 5,
+        props: {
+          title: "Campaign status",
+          subtitle: campaignStatusSubtitle,
+          description: "Current status of the campaign", 
+        }
       },
     ];
     return (
@@ -220,7 +242,6 @@ const CampaignDetails = (props) => {
           }
         </div>
       </div>
-      <Toaster />
       <SuccessModal
         isOpen={successModalOpen}
         setIsOpen={setSuccessModalOpen}

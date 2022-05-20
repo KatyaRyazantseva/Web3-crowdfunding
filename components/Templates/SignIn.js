@@ -17,7 +17,7 @@ const Login = () => {
 
   const handleClick = () => {
     handleWalletConnect(setUserInfo, toast);
-    // router.push("/");
+    router.push("/");
   }
   return (
     <div className="flex p-10">

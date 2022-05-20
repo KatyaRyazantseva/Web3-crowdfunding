@@ -65,4 +65,19 @@ const increaseDate = (date, numberOfDays) => {
   };
 }
 
-export { shortErrorMessage, dateToTimestamp, timestampToDate, timestampGapToDays, increaseDate };
+const getProgress = (part, total) => {
+  let progress = 0;
+  try {
+    if ((part !== 0 ) && (total !== 0)) {
+      progress = Math.round(part / total * 100);
+      return ((progress === 0) ? 0 : ((progress > 100) ? 100 : progress));
+    } else {
+      return 0;
+    };
+  } catch(e) {
+    console.log(e.message);
+    return 0;
+  }
+}
+
+export { shortErrorMessage, dateToTimestamp, timestampToDate, timestampGapToDays, increaseDate, getProgress };

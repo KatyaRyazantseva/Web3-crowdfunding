@@ -5,5 +5,7 @@ Create your campaign on the Web3 crowdfunding platform. he campaign can last no 
 
 If the campaign is failed, contributors can make a refund.
 
+CONTRACT FACTORY ADDRESS: 0x18F2bd0eB9FAEf362c07b01A3314D3c20973b95d
+
 NOTE: Mumbai network is not stable, it works slow. Please, refresh the website if the data hasn't been loaded.
 
